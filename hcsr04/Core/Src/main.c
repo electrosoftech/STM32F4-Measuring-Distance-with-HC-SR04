@@ -71,7 +71,7 @@ void MX_USB_HOST_Process(void);
 struct
 {
 	uint32_t us;
-	uint32_t distance;
+	uint32_t distance;// sensörümüzün ölçtüğü uzaklık(uS*10/58) bu değişkene atayacağız.
 	uint32_t digital;
 
 }hcsr04;
@@ -188,30 +188,6 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	if(GPIO_Pin == ECHO_Pin)
-	{
-		if(HAL_GPIO_ReadPin(ECHO_GPIO_Port,ECHO_Pin) == GPIO_PIN_SET)
-		{
-			__HAL_TIM_SetCounter(&htim10,0);
-			HAL_TIM_Base_Start(&htim10);
-		}
-		else
-		{
-			HAL_TIM_Base_Stop(&htim10);
-			hcsr04.us = __HAL_TIM_GetCounter(&htim10);
-			hcsr04.distance = (hcsr04.us*10)/58;
-		}
-	}
-	else
-	{
-
-	}
-}
-
-
 
 static void MX_I2C1_Init(void)
 {
@@ -452,6 +428,28 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	//Uygulamamızda birden fazla kesme varsa, gelen kesmenin hangi pinden geldiğini anlamak için if yazılır.Bu örneğimizde sadece bir tane kesme var.
+	if(GPIO_Pin == ECHO_Pin)//kesmemiz echo pininden geldi.
+	{
+		if(HAL_GPIO_ReadPin(ECHO_GPIO_Port,ECHO_Pin) == GPIO_PIN_SET)
+		{
+			__HAL_TIM_SetCounter(&htim10,0);
+			HAL_TIM_Base_Start(&htim10);
+		}
+		else
+		{
+			HAL_TIM_Base_Stop(&htim10);
+			hcsr04.us = __HAL_TIM_GetCounter(&htim10);
+			hcsr04.distance = (hcsr04.us*10)/58;
+		}
+	}
+	else
+	{
+
+	}
+}
 
 /* USER CODE END 4 */
 
